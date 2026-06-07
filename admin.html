@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Rifa Namorados</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --crimson: #8B1A1A;
+    --crimson-dark: #6B1010;
+    --crimson-light: #C44444;
+    --cream: #FFF8F0;
+    --cream-dark: #F5EBE0;
+    --text-soft: #B06060;
+    --text-mid: #7A3030;
+    --sold-bg: #d4d4d4;
+    --gold: #C9963C;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: #f5f5f5;
+    min-height: 100vh;
+  }
+
+  header {
+    background: var(--crimson-dark);
+    padding: 1.1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  header h1 {
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 700;
+  }
+  header a {
+    color: rgba(255,255,255,0.6);
+    font-size: 13px;
+    text-decoration: none;
+    border: 1px solid rgba(255,255,255,0.25);
+    padding: 0.35rem 0.9rem;
+    border-radius: 100px;
+    transition: all 0.15s;
+  }
+  header a:hover { color: white; border-color: rgba(255,255,255,0.6); }
+
+  .wrap { max-width: 760px; margin: 0 auto; padding: 1.5rem 1rem; display: flex; flex-direction: column; gap: 1rem; }
+
+  .card {
+    background: white;
+    border-radius: 14px;
+    padding: 1.25rem 1.5rem;
+    border: 1px solid #e8e8e8;
+  }
+  .card-title {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    color: var(--text-soft);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* FORM */
+  .form-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+  .fg { flex: 1; min-width: 140px; }
+  .fg label { display: block; font-size: 12px; color: #999; font-weight: 500; margin-bottom: 4px; }
+  .fg input {
+    width: 100%;
+    padding: 0.6rem 0.85rem;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 9px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    transition: border 0.2s;
+    background: white;
+    color: #222;
+  }
+  .fg input:focus { outline: none; border-color: var(--crimson); }
+
+  .btn {
+    background: var(--crimson);
+    color: white;
+    border: none;
+    padding: 0.7rem 1.4rem;
+    border-radius: 9px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+  }
+  .btn:hover { background: var(--crimson-light); }
+  .btn:active { transform: scale(0.97); }
+  .btn-outline {
+    background: transparent;
+    color: var(--crimson);
+    border: 1.5px solid var(--crimson);
+    padding: 0.6rem 1.2rem;
+    border-radius: 9px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-outline:hover { background: rgba(139,26,26,0.06); }
+
+  .msg {
+    padding: 0.65rem 1rem;
+    border-radius: 8px;
+    font-size: 13px;
+    margin-top: 0.6rem;
+    display: none;
+  }
+  .msg.ok { background: #e8f5e9; color: #2e7d32; border: 1px solid #a5d6a7; display: block; }
+  .msg.err { background: #ffebee; color: #c62828; border: 1px solid #ef9a9a; display: block; }
+  .msg.load { background: #fff3e0; color: #e65100; border: 1px solid #ffcc80; display: block; }
+
+  /* NUMBER GRID */
+  .num-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(44px, 1fr));
+    gap: 5px;
+    margin-bottom: 0.6rem;
+  }
+  .ng-btn {
+    aspect-ratio: 1;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 700;
+    font-family: 'DM Sans', sans-serif;
+    transition: transform 0.1s;
+  }
+  .ng-btn.available { background: var(--crimson); color: white; border-color: var(--crimson); }
+  .ng-btn.sold { background: var(--sold-bg); color: #999; border-color: #c8c8c8; cursor: default; }
+  .ng-btn.sel { background: var(--gold); color: white; border-color: var(--gold); transform: scale(1.15); }
+  .ng-btn.available:hover { transform: scale(1.1); }
+
+  /* TABLE */
+  .search-row { display: flex; gap: 8px; margin-bottom: 1rem; flex-wrap: wrap; }
+  .search-row input {
+    flex: 1;
+    min-width: 160px;
+    padding: 0.55rem 0.8rem;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 9px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+  }
+  .search-row input:focus { outline: none; border-color: var(--crimson); }
+  .tbl-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th {
+    background: #fafafa;
+    color: #aaa;
+    padding: 0.55rem 0.75rem;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    border-bottom: 1.5px solid #efefef;
+  }
+  td { padding: 0.6rem 0.75rem; border-bottom: 1px solid #f2f2f2; color: #333; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #fafafa; }
+  .badge {
+    background: var(--crimson);
+    color: white;
+    border-radius: 100px;
+    padding: 2px 10px;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .del-btn {
+    background: none;
+    border: none;
+    color: #e53935;
+    cursor: pointer;
+    font-size: 15px;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+  .del-btn:hover { background: #ffebee; }
+
+  /* SHEETS CONFIG */
+  .notice {
+    background: #fff8e1;
+    border: 1px solid #ffe082;
+    border-radius: 10px;
+    padding: 0.9rem 1rem;
+    font-size: 12.5px;
+    color: #5d4037;
+    margin-bottom: 1rem;
+    line-height: 1.6;
+  }
+  .notice strong { color: #4e342e; }
+  code {
+    background: rgba(0,0,0,0.07);
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 12px;
+  }
+  details summary {
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--text-mid);
+    font-weight: 600;
+    padding: 0.5rem 0;
+  }
+  pre {
+    background: #1e1e1e;
+    color: #d4d4d4;
+    padding: 1rem;
+    border-radius: 10px;
+    font-size: 11px;
+    overflow-x: auto;
+    margin-top: 0.6rem;
+    line-height: 1.65;
+    white-space: pre;
+  }
+
+  /* STATS */
+  .stats-row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .stat {
+    flex: 1;
+    min-width: 100px;
+    background: var(--cream);
+    border-radius: 10px;
+    padding: 0.8rem 1rem;
+    text-align: center;
+  }
+  .stat .n { font-size: 26px; font-weight: 700; color: var(--crimson); }
+  .stat .l { font-size: 11px; color: var(--text-soft); text-transform: uppercase; letter-spacing: 0.07em; margin-top: 2px; }
+  .progress { height: 7px; background: #eee; border-radius: 100px; overflow: hidden; margin-top: 6px; }
+  .progress-fill { height: 100%; background: var(--crimson); border-radius: 100px; transition: width 0.5s; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>⚙️ Admin — Rifa Namorados</h1>
+  <a href="rifa.html">Ver rifa pública →</a>
+</header>
+
+<div class="wrap">
+
+  <!-- STATS -->
+  <div class="card">
+    <div class="card-title">📊 Resumo</div>
+    <div class="stats-row">
+      <div class="stat"><div class="n" id="s-sold">0</div><div class="l">Vendidos</div></div>
+      <div class="stat"><div class="n" id="s-avail">200</div><div class="l">Disponíveis</div></div>
+      <div class="stat"><div class="n" id="s-pct">0%</div><div class="l">Progresso</div>
+        <div class="progress"><div class="progress-fill" id="s-bar" style="width:0%"></div></div>
+      </div>
+      <div class="stat"><div class="n" id="s-val">R$0</div><div class="l">Arrecadado</div></div>
+    </div>
+  </div>
+
+  <!-- REGISTER -->
+  <div class="card">
+    <div class="card-title">➕ Registrar comprador</div>
+    <div style="margin-bottom:0.75rem">
+      <div style="font-size:12px;color:#aaa;font-weight:500;margin-bottom:6px;">Clique no número para selecionar:</div>
+      <div class="num-grid" id="admin-grid"></div>
+      <p style="font-size:12px;color:#aaa;margin-top:4px;">Selecionado: <strong id="sel-label" style="color:var(--crimson)">nenhum</strong></p>
+    </div>
+    <div class="form-row">
+      <div class="fg"><label>Nome *</label><input type="text" id="f-name" placeholder="Nome completo" /></div>
+      <div class="fg"><label>Telefone</label><input type="tel" id="f-phone" placeholder="(13) 99999-9999" /></div>
+    </div>
+    <div class="form-row">
+      <div class="fg"><label>Data da compra</label><input type="date" id="f-date" /></div>
+      <div class="fg" style="display:flex;align-items:flex-end;">
+        <button class="btn" onclick="register()" style="width:100%">✓ Registrar</button>
+      </div>
+    </div>
+    <div class="msg" id="reg-msg"></div>
+  </div>
+
+  <!-- TABLE -->
+  <div class="card">
+    <div class="card-title">📋 Compradores</div>
+    <div class="search-row">
+      <input type="text" id="search" placeholder="Buscar por nome ou número..." oninput="filterTable()" />
+      <button class="btn-outline" onclick="loadAll()">↻ Atualizar</button>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Nº</th><th>Nome</th><th>Telefone</th><th>Data</th><th></th></tr></thead>
+        <tbody id="tbody">
+          <tr><td colspan="5" style="text-align:center;color:#ccc;padding:2rem;">Clique em Atualizar</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="msg" id="tbl-msg"></div>
+  </div>
+
+  <!-- CONFIG -->
+  <div class="card">
+    <div class="card-title">⚙️ Google Sheets</div>
+    <div class="notice">
+      <strong>Como configurar (faça uma vez só):</strong><br>
+      1. Crie uma planilha com as colunas: <code>numero</code> | <code>nome</code> | <code>telefone</code> | <code>data</code><br>
+      2. No Google Sheets → <strong>Extensões → Apps Script</strong> — cole o script abaixo<br>
+      3. <strong>Implantar → Web App</strong> — execute como <em>Eu</em>, acesso <em>Qualquer pessoa</em><br>
+      4. Copie a URL gerada, cole no campo abaixo e clique em <strong>Aplicar</strong><br>
+      5. Depois abra os dois arquivos HTML num editor de texto e substitua <code>COLE_SUA_URL_AQUI</code> pela URL — assim funciona para todo mundo, em qualquer dispositivo
+    </div>
+    <div class="form-row">
+      <div class="fg" style="flex:3"><label>URL da Web App</label>
+        <input type="url" id="cfg-url" placeholder="https://script.google.com/macros/s/.../exec" />
+      </div>
+      <div class="fg" style="display:flex;align-items:flex-end;">
+        <button class="btn" onclick="saveCfg()" style="width:100%">Salvar</button>
+      </div>
+    </div>
+    <div class="msg" id="cfg-msg"></div>
+    <details style="margin-top:0.75rem">
+      <summary>📋 Ver código do Apps Script</summary>
+      <pre id="script-code"></pre>
+    </details>
+  </div>
+
+</div>
+
+<script src="adm.js">
+</script>
+</body>
+</html>

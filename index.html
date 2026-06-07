@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rifa Dia dos Namorados</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --crimson: #8B1A1A;
+    --crimson-light: #C44444;
+    --sold-bg: #d4d4d4;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: #8B1A1A;
+    min-height: 100vh;
+    padding: 1rem;
+  }
+
+  .banner-slot {
+    width: 100%;
+    max-width: 580px;
+    margin: 0 auto 0.75rem;
+    display: block;
+  }
+  .banner-slot img {
+    width: 100%;
+    display: block;
+    border-radius: 16px;
+  }
+
+  .card {
+    max-width: 580px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 20px;
+    padding: 1.25rem;
+  }
+
+  .numbers-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+    gap: 7px;
+  }
+
+  .num-btn {
+    aspect-ratio: 1;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .num-btn.available {
+    background: var(--crimson);
+    color: white;
+    box-shadow: 0 2px 6px rgba(139,26,26,0.25);
+  }
+  .num-btn.available:hover {
+    transform: scale(1.14);
+    box-shadow: 0 4px 14px rgba(139,26,26,0.45);
+    background: var(--crimson-light);
+  }
+  .num-btn.sold {
+    background: var(--sold-bg);
+    color: #888;
+    cursor: pointer;
+  }
+  .num-btn.sold:hover {
+    transform: scale(1.08);
+    box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+  }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    max-width: 340px;
+    width: 100%;
+    position: relative;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    animation: popIn 0.22s ease;
+    text-align: center;
+  }
+  @keyframes popIn {
+    from { transform: scale(0.85); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+  .modal-close {
+    position: absolute;
+    top: 0.9rem;
+    right: 0.9rem;
+    background: #f0f0f0;
+    border: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 15px;
+    color: #666;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-circle {
+    width: 68px;
+    height: 68px;
+    border-radius: 50%;
+    margin: 0 auto 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    font-weight: 700;
+  }
+  .modal-circle.available { background: var(--crimson); color: white; }
+  .modal-circle.sold { background: #e0e0e0; color: #666; }
+  .modal h3 { font-size: 1.15rem; color: #222; margin-bottom: 0.4rem; }
+  .modal p { font-size: 13px; color: #888; margin-bottom: 1rem; }
+  .modal-info {
+    background: #FFF8F0;
+    border-radius: 10px;
+    padding: 0.9rem;
+    text-align: left;
+  }
+  .modal-info-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    padding: 3px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+  }
+  .modal-info-row:last-child { border-bottom: none; }
+  .modal-info-row .k { color: #aaa; }
+  .modal-info-row .v { font-weight: 600; color: #333; }
+  .pix-box {
+    margin-top: 1rem;
+    background: var(--crimson);
+    color: white;
+    border-radius: 10px;
+    padding: 0.8rem;
+    font-size: 13px;
+  }
+  .pix-box strong { display: block; font-size: 16px; margin-top: 3px; letter-spacing: 0.04em; }
+  .pix-hint { font-size: 11px; opacity: 0.75; margin-top: 3px; }
+</style>
+</head>
+<body>
+
+<!-- BANNER: coloque a imagem da rifa com o nome banner.jpg na mesma pasta -->
+<div class="banner-slot">
+  <img src="banner.png" alt="Rifa Dia dos Namorados" onerror="this.parentElement.style.display='none'" />
+</div>
+
+<div class="card">
+  <div class="numbers-grid" id="numbers-grid"></div>
+  <p id="load-msg" style="text-align:center;color:#ccc;font-size:13px;padding:1.5rem 0;">Carregando...</p>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal">
+    <button class="modal-close" onclick="document.getElementById('modal').classList.remove('open')">✕</button>
+    <div class="modal-circle" id="m-circle"></div>
+    <h3 id="m-title"></h3>
+    <p id="m-sub"></p>
+    <div id="m-info" class="modal-info" style="display:none"></div>
+    <div id="m-pix" class="pix-box" style="display:none">
+      Pague R$10,00 via PIX:<strong>23662459809</strong>
+      <div class="pix-hint">Envie o comprovante após o pagamento</div>
+    </div>
+  </div>
+</div>
+
+<script src="funcao.js"></script>
+</body>
+</html>
