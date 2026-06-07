@@ -26,8 +26,7 @@ Todas as informações são armazenadas em uma planilha do Google Sheets, permit
 
 ## Tecnologias Utilizadas
 
-* HTML5
-* CSS3
+* HTML5 Tailwind CSS
 * JavaScript
 * Google Sheets API
 * Google Apps Script
@@ -38,7 +37,6 @@ Todas as informações são armazenadas em uma planilha do Google Sheets, permit
 /
 ├── index.html          # Página pública
 ├── admin.html          # Painel administrativo
-├── css/
 ├── js/
 └── assets/
 ```
